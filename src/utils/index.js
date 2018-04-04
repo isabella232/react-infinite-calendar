@@ -67,6 +67,31 @@ export function getWeek(yearStart, date, weekStartsOn) {
 }
 
 /**
+ * Get the row number in at which the given date should be.
+ * @param {Number} yearStart - Year of the first day
+ * @param {Date} date - The date we want to get the row from
+ * @param {Number} weekStartsOn - the index of the first day of the week (from 0 to 6)
+ * @return {Number} - Returns the row index at which the date is located
+ */
+export function getRowIndex(yearStart, date, weekStartsOn) {
+  const firstOfMonth = (typeof yearStart === 'number')
+    ? new Date(yearStart, 0, 1) // 1st Jan of the Year
+    : new Date(yearStart);
+
+  let extraRows = 0;
+
+  while(firstOfMonth < date) {
+    firstOfMonth.setMonth(firstOfMonth.getMonth() + 1);
+    firstOfMonth.setDate(1);
+    if (firstOfMonth.getDay() !== weekStartsOn) {
+      extraRows++;
+    }
+  }
+
+  return getWeek(yearStart, date, weekStartsOn) + extraRows;
+}
+
+/**
  * Get the number of weeks in a given month to be able to calculate the height of that month
  * @param {Number} year - the year number
  * @param {Number} month - the index of the month
@@ -76,11 +101,8 @@ export function getWeek(yearStart, date, weekStartsOn) {
 export function getWeeksInMonth(
   month,
   year = new Date().getFullYear(),
-  weekStartsOn,
-  isLastDisplayedMonth
+  weekStartsOn
 ) {
-  const weekEndsOn = getEndOfWeekIndex(weekStartsOn);
-
   const firstOfMonth = new Date(year, month, 1);
   const firstWeekNumber = getWeek(year, firstOfMonth, weekStartsOn);
 
@@ -88,11 +110,6 @@ export function getWeeksInMonth(
   const lastWeekNumber = getWeek(year, lastOfMonth, weekStartsOn);
 
   let rowCount = lastWeekNumber - firstWeekNumber;
-
-  // If the last week contains 7 days, we need to add an extra row
-  if (lastOfMonth.getDay() === weekEndsOn || isLastDisplayedMonth) {
-    rowCount++;
-  }
 
   return rowCount;
 }

@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import {
   emptyFn,
   getMonth,
-  getWeek,
+  getRowIndex,
   getWeeksInMonth,
   animate,
 } from '../utils';
@@ -58,8 +58,8 @@ export default class MonthList extends Component {
     if (!this.monthHeights[index]) {
       let {locale: {weekStartsOn}, months, rowHeight} = this.props;
       let {month, year} = months[index];
-      let weeks = getWeeksInMonth(month, year, weekStartsOn, index === months.length - 1);
-      let height = weeks * rowHeight;
+      let weeks = getWeeksInMonth(month, year, weekStartsOn);
+      let height = (weeks+1) * rowHeight;
       this.monthHeights[index] = height;
     }
 
@@ -80,9 +80,8 @@ export default class MonthList extends Component {
 
   getDateOffset(date) {
     const {min, rowHeight, locale: {weekStartsOn}, height} = this.props;
-    const weeks = getWeek(startOfMonth(min), parse(date), weekStartsOn);
-
-    return weeks * rowHeight - (height - rowHeight/2) / 2;
+    const row = getRowIndex(startOfMonth(min), parse(date), weekStartsOn);
+    return row * rowHeight - (height - rowHeight/2) / 2;
   }
 
   scrollToDate = (date, offset = 0, ...rest) => {
